@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>⪼ QR GENERATOR ⪻</title>
+  <!-- qrcode library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background: #020202;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background-image: radial-gradient(#0a3b2a 0.5px, transparent 0.5px);
+      background-size: 25px 25px;
+    }
+
+    /* main terminal v2 – lebih slick */
+    .terminal-v2 {
+      width: 100%;
+      max-width: 480px;
+      background: #030b0a;
+      border: 2px solid #1effbc;
+      box-shadow: 0 0 35px #1effbc, inset 0 0 15px #1effbc33;
+      border-radius: 28px;
+      padding: 22px 18px;
+      position: relative;
+      backdrop-filter: blur(1px);
+    }
+
+    /* header dengan garis matrix */
+    .header-glow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #1effbc;
+      padding-bottom: 10px;
+      margin-bottom: 22px;
+      color: #a5ffda;
+      text-shadow: 0 0 8px #1effbc;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+    }
+
+    .glitch {
+      font-weight: bold;
+      background: #0f2a20;
+      padding: 5px 12px;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      border: 1px solid #3affb3;
+      animation: flicker 2s infinite;
+    }
+
+    @keyframes flicker {
+      0% { opacity: 1; background: #0f2a20; }
+      45% { opacity: 1; }
+      50% { opacity: 0.3; background: #1effbc20; }
+      55% { opacity: 1; }
+      100% { opacity: 1; }
+    }
+
+    /* login panel v2 lebih mewah */
+    .panel-neon {
+      background: #05120f;
+      border: 2px solid #2effb3;
+      border-radius: 22px;
+      padding: 22px 18px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 35px #00ffbf4d, inset 0 0 30px #00ffaa1a;
+    }
+
+    .input-group {
+      margin-bottom: 22px;
+    }
+
+    .input-label {
+      color: #bcffe4;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .input-label .arrow {
+      color: #1effbc;
+      font-size: 1.4rem;
+      font-weight: bold;
+      transform: translateY(-2px);
+    }
+
+    .hacker-input {
+      width: 100%;
+      background: #01100c;
+      border: 2px solid #2affb3;
+      padding: 16px 18px;
+      color: #c8ffe5;
+      font-size: 1rem;
+      border-radius: 50px;
+      outline: none;
+      box-shadow: inset 0 0 15px #00a87e, 0 0 15px #1effbc;
+      font-weight: bold;
+    }
+
+    .hacker-input:focus {
+      border-color: #ffffff;
+      background: #02261e;
+      box-shadow: 0 0 30px cyan, inset 0 0 20px #00ffe1;
+    }
+
+    .hacker-input::placeholder {
+      color: #217559;
+      font-style: italic;
+    }
+
+    /* tombol aksi */
+    .btn-neon {
+      width: 100%;
+      background: transparent;
+      border: 3px solid #1effbc;
+      color: #1effbc;
+      padding: 16px 10px;
+      font-weight: bold;
+      font-size: 1.4rem;
+      border-radius: 80px;
+      text-transform: uppercase;
+      letter-spacing: 6px;
+      box-shadow: 0 0 25px #00ffaa;
+      transition: 0.2s;
+      cursor: pointer;
+      margin-top: 5px;
+      background: #021008;
+    }
+
+    .btn-neon:active {
+      background: #1effbc;
+      color: #000;
+      box-shadow: 0 0 60px white;
+      border-color: #fff;
+      transform: scale(0.99);
+    }
+
+    .error-box {
+      background: #2b0f0f;
+      border: 2px solid #ff6060;
+      color: #ff9f9f;
+      padding: 14px;
+      border-radius: 60px;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 18px;
+      box-shadow: 0 0 20px red;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* QR area v2 lebih kaya fitur */
+    .qr-dashboard {
+      background: #02120e;
+      border: 2px solid #3dffb9;
+      border-radius: 28px;
+      padding: 22px 16px;
+      margin-top: 20px;
+      box-shadow: 0 0 45px #00ffbf70, inset 0 0 20px #00ff881a;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      background: #052018;
+      padding: 12px 16px;
+      border-radius: 60px;
+      border: 1px solid #00ffa6;
+    }
+
+    .flex-row .labelx {
+      color: #adffd6;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    /* ukuran kontrol */
+    .size-control {
+      display: flex;
+      background: #02120e;
+      border: 1px solid #23ffb4;
+      border-radius: 100px;
+      padding: 4px;
+    }
+
+    .size-btn {
+      background: transparent;
+      border: none;
+      color: #1effbc;
+      font-size: 1.5rem;
+      font-weight: bold;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .size-btn:active {
+      background: #1effbc;
+      color: black;
+    }
+
+    .size-value {
+      min-width: 50px;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    /* qr persegi */
+    .qr-preview {
+      display: flex;
+      justify-content: center;
+      background: #00150f;
+      padding: 25px 10px;
+      border-radius: 38px;
+      border: 2px solid #2affb3;
+      margin: 15px 0 18px;
+    }
+
+    #qrcode {
+      background: white;
+      padding: 10px;
+      border-radius: 22px;
+      box-shadow: 0 0 0 3px #00150f, 0 0 0 6px #1effbc, 0 0 50px #00ffee;
+    }
+
+    #qrcode canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-width: 220px;
+      border-radius: 12px;
+    }
+
+    /* bar download dan fitur tambahan */
+    .action-strip {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-around;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-download, .btn-clear, .btn-random {
+      flex: 1 1 110px;
+      background: #02261e;
+      border: 2px solid #1effbc;
+      color: #d0ffe8;
+      padding: 14px 5px;
+      border-radius: 40px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      text-align: center;
+      box-shadow: 0 0 12px #1effbc;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-download:active, .btn-clear:active, .btn-random:active {
+      background: #1effbc;
+      color: #000;
+      border-color: white;
+      box-shadow: 0 0 35px #1effbc;
+      transform: scale(0.96);
+    }
+
+    .footer-matrix {
+      text-align: right;
+      color: #0f5f4a;
+      font-size: 0.7rem;
+      margin-top: 18px;
+      border-top: 1px solid #1d5f48;
+      padding-top: 8px;
+    }
+
+    .footer-matrix span {
+      color: #7affcf;
+    }
+
+    /* responsif android */
+    @media (max-width: 380px) {
+      .btn-download, .btn-clear, .btn-random {
+        font-size: 0.8rem;
+        padding: 12px 3px;
+      }
+      .flex-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-v2" id="app">
+    <!-- header dengan kata pengganti logo (lebih bagus) -->
+    <div class="header-glow">
+      <span>QR GENERAT</span>
+      <span class="glitch">ROOT:ACCESS</span>
+    </div>
+
+    <!-- LOGIN PANEL (awalnya tampil) -->
+    <div id="loginPanel" class="panel-neon">
+      <div class="input-group">
+        <div class="input-label">
+          <span class="arrow">☰</span> LOGIN_ID
+        </div>
+        <input type="text" id="username" class="hacker-input" placeholder="username" autocomplete="off" value="">
+      </div>
+      <div class="input-group">
+        <div class="input-label">
+          <span class="arrow">☰</span> PASSWORD
+        </div>
+        <input type="password" id="password" class="hacker-input" placeholder="****" value="">
+      </div>
+      <button class="btn-neon" id="loginBtn">▶ ENTER</button>
+      <a href="https://wa.me/6282119345965?text=mau+key+qr+generator+bang+!!">
+        <button class="btn-neon">
+          key acces
+        </button>
+      </a>
+      <div id="loginError" class="error-box hidden">⛔ ACKSES DI TOLAK // CHECK CREDENTIALS</div>
+    </div>
+
+    <!-- QR DASHBOARD (setelah login, hidden awal) -->
+    <div id="qrDashboard" class="qr-dashboard hidden">
+      <!-- input teks qr - kosong sesuai permintaan -->
+      <div class="input-group">
+        <div class="input-label">
+          <span class="arrow">⪼</span> Isi URL anda :
+        </div>
+        <input type="text" id="qrInput" class="hacker-input" placeholder="cth: https://hack.web" value="" autocomplete="off">
+      </div>
+
+      <!-- kontrol ukuran + koreksi level -->
+      <div class="flex-row">
+        <span class="labelx">⚙ SIZE</span>
+        <div class="size-control">
+          <button class="size-btn" id="decreaseSize">−</button>
+          <span class="size-value" id="sizeDisplay">200</span>
+          <button class="size-btn" id="increaseSize">+</button>
+        </div>
+        <span class="labelx" style="margin-left: auto;">ECC: <span id="eccLevel">H</span></span>
+      </div>
+
+      <!-- QR preview persegi -->
+      <div class="qr-preview">
+        <div id="qrcode"></div>
+      </div>
+
+      <!-- bar super lengkap: download, clear, random -->
+      <div class="action-strip">
+        <div class="btn-download" id="downloadBtn">
+          <span>⬇️</span> UNDUH
+        </div>
+        <div class="btn-clear" id="clearBtn">
+          <span>🗑️</span> CLEAR
+        </div>
+        <div class="btn-random" id="randomBtn">
+          <span>🎲</span> RANDOM
+        </div>
+      </div>
+
+      <!-- fitur tambahan : pilih error correction dan reset -->
+      <div style="display: flex; gap: 8px; margin-top: 16px; justify-content: center;">
+        <select id="eccSelect" style="background:#02261e; color:#00ffb3; border:2px solid #2affb3; padding:12px; border-radius:40px; font-weight:bold; flex:1;">
+          <option value="L">ECC Low (L)</option>
+          <option value="M">ECC Medium (M)</option>
+          <option value="Q">ECC Quartile (Q)</option>
+          <option value="H" selected>ECC High (H)</option>
+        </select>
+      </div>
+
+      <div class="footer-matrix">
+        <span>></span> QR persegi • download PNG • v2 android
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ========== CREDENTIALS ==========
+      const VALID_USER = "naz";
+      const VALID_PASS = "123";
+
+      // DOM elements
+      const loginPanel = document.getElementById('loginPanel');
+      const qrDashboard = document.getElementById('qrDashboard');
+      const usernameInp = document.getElementById('username');
+      const passwordInp = document.getElementById('password');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginError = document.getElementById('loginError');
+
+      const qrInput = document.getElementById('qrInput');
+      const qrcodeDiv = document.getElementById('qrcode');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const randomBtn = document.getElementById('randomBtn');
+      const sizeDisplay = document.getElementById('sizeDisplay');
+      const decreaseSize = document.getElementById('decreaseSize');
+      const increaseSize = document.getElementById('increaseSize');
+      const eccSelect = document.getElementById('eccSelect');
+      const eccLevelSpan = document.getElementById('eccLevel');
+
+      // state
+      let currentSize = 200;          // default persegi 200px
+      let currentECC = 'H';           // High
+      let qrCanvas = null;            // menyimpan canvas terakhir
+
+      // ========== FUNGSI QR GENERATE ==========
+      function generateQR() {
+        let text = qrInput.value.trim();
+        // kalau teks kosong: buat qr kosong tapi tetap muncul (menampilkan string kosong menghasilkan qr kecil? biar fungsional kita beri default spasi atau '')
+        // supaya tetap muncul, kita gunakan teks " " jika kosong? Namun agar benar2 kosong, qr tetap bisa digenerate dengan empty string? 
+        // qrcode library tetap generate pattern untuk empty string. biarkan saja.
+        // Tapi kita handle agar tidak error.
+        if (text === '') {
+          text = ' ';   // spasi agar tetap keluar qr (tapi white module? dengan spasi tetap ada pola) kita beri default agar pengguna lihat hasil. 
+          // sesuai permintaan "text qr generator nya harus kosong." artinya inputnya kosong, tp qr tetap muncul dengan pola default, ok.
+        }
+
+        qrcodeDiv.innerHTML = ''; // bersihkan
+
+        let eccValue = currentECC;   // ambil dari state
+
+        QRCode.toCanvas(text, {
+          width: currentSize,
+          margin: 1,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF'
+          },
+          errorCorrectionLevel: eccValue
+        }, function(err, canvas) {
+          if (err) {
+            console.error(err);
+            qrcodeDiv.innerHTML = '<span style="color:red; background:black; padding:10px;">QR ERROR</span>';
+            return;
+          }
+          canvas.style.width = '100%';
+          canvas.style.height = 'auto';
+          canvas.style.maxWidth = currentSize + 'px';
+          canvas.style.borderRadius = '12px';
+          canvas.style.boxShadow = '0 0 0 3px #1effbc';
+          qrcodeDiv.appendChild(canvas);
+          qrCanvas = canvas;
+        });
+      }
+
+      // update ukuran
+      function updateSize(newSize) {
+        if (newSize < 120) newSize = 120;
+        if (newSize > 350) newSize = 350;
+        currentSize = newSize;
+        sizeDisplay.textContent = currentSize;
+        generateQR();
+      }
+
+      // ========== LOGIN ==========
+      loginBtn.addEventListener('click', function() {
+        const user = usernameInp.value;
+        const pass = passwordInp.value;
+
+        if (user === VALID_USER && pass === VALID_PASS) {
+          loginError.classList.add('hidden');
+          loginPanel.classList.add('hidden');       // sembunyikan login
+          qrDashboard.classList.remove('hidden');   // munculkan qr panel
+
+          // generate QR dengan input kosong (default)
+          qrInput.value = '';                       // kosong sesuai permintaan
+          generateQR();
+        } else {
+          loginError.classList.remove('hidden');
+          // efek goyang
+          loginError.style.transform = 'skewX(5deg)';
+          setTimeout(() => loginError.style.transform = 'skewX(0)', 150);
+        }
+      });
+
+      // enter pada password
+      passwordInp.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loginBtn.click();
+      });
+
+      // ========== FITUR QR ==========
+
+      // event input teks (langsung generate)
+      qrInput.addEventListener('input', function() {
+        if (!qrDashboard.classList.contains('hidden')) {
+          generateQR();
+        }
+      });
+
+      // tombol clear: kosongkan input dan generate ulang (tetap ada qr untuk string kosong)
+      clearBtn.addEventListener('click', function() {
+        qrInput.value = '';
+        generateQR();
+      });
+
+      // random text (gaya hacker: string acak)
+      randomBtn.addEventListener('click', function() {
+        const randomPart = Math.random().toString(36).substring(2, 10) + '@' + Math.random().toString(36).substring(2, 6) + '.io';
+        qrInput.value = randomPart;
+        generateQR();
+      });
+
+      // ukuran
+      decreaseSize.addEventListener('click', () => updateSize(currentSize - 15));
+      increaseSize.addEventListener('click', () => updateSize(currentSize + 15));
+
+      // ECC level
+      eccSelect.addEventListener('change', function() {
+        currentECC = eccSelect.value;
+        eccLevelSpan.textContent = currentECC;
+        generateQR();
+      });
+
+      // ========== DOWNLOAD PNG ==========
+      downloadBtn.addEventListener('click', function() {
+        if (!qrCanvas) {
+          generateQR();
+          setTimeout(() => {
+            if (qrCanvas) {
+              const link = document.createElement('a');
+              link.download = 'hack_qr_' + Date.now() + '.png';
+              link.href = qrCanvas.toDataURL('image/png');
+              link.click();
+            } else {
+              alert('QR tidak tersedia');
+            }
+          }, 200);
+          return;
+        }
+        const link = document.createElement('a');
+        link.download = 'hack_qr_' + Date.now() + '.png';
+        link.href = qrCanvas.toDataURL('image/png');
+        link.click();
+      });
+
+      // inisialisasi awal: qr dashboard hidden
+      // pastikan login panel tampil, tidak ada qr canvas awal
+      qrDashboard.classList.add('hidden');
+      loginPanel.classList.remove('hidden');
+
+      // tambahan: sentuhan android, hilangkan error saat refresh
+      window.addEventListener('load', function() {
+        // pastikan ukuran default display
+        sizeDisplay.textContent = currentSize;
+        eccLevelSpan.textContent = currentECC;
+      });
+    })();
+  </script>
+</body>
+</html>
